@@ -1,9 +1,10 @@
 package info.somrat.redis.service;
 
 import info.somrat.redis.entity.Article;
+import info.somrat.redis.request.ArticleCreateRequest;
 import info.somrat.redis.respository.ArticleRepository;
-import java.util.ArrayList;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -17,7 +18,7 @@ public class ArticleService implements ArticleServiceInterface {
     private ArticleRepository articleRepository;
 
     @Override
-    @Cacheable(value= "articleCache", key= "#articleId")
+    @Cacheable(value= "articleCache", key= "#id")
     public Article getArticleById(long articleId) {
         System.out.println("--- Inside getArticleById() ---");
         return  articleRepository.findById(articleId).get();
@@ -26,22 +27,21 @@ public class ArticleService implements ArticleServiceInterface {
     @Cacheable(value= "allArticlesCache", unless= "#result.size() == 0")
     public List<Article> getAllArticles(){
         System.out.println("--- Inside getAllArticles() ---");
-        List<Article> list = new ArrayList<>();
-        articleRepository.findAll().forEach(e -> list.add(e));
-        return list;
+        return articleRepository.findAll();
     }
     @Override
     @Caching(
-        put= { @CachePut(value= "articleCache", key= "#article.articleId") },
+        put= { @CachePut(value= "articleCache", key= "#article.id") },
         evict= { @CacheEvict(value= "allArticlesCache", allEntries= true) }
     )
-    public Article addArticle(Article article){
+    @Transactional
+    public int addArticle(Article article){
         System.out.println("--- Inside addArticle() ---");
-        return articleRepository.save(article);
+        return (int) articleRepository.save(article).getId();
     }
     @Override
     @Caching(
-        put= { @CachePut(value= "articleCache", key= "#article.articleId") },
+        put= { @CachePut(value= "articleCache", key= "#article.id") },
         evict= { @CacheEvict(value= "allArticlesCache", allEntries= true) }
     )
     public Article updateArticle(Article article) {
@@ -51,7 +51,7 @@ public class ArticleService implements ArticleServiceInterface {
     @Override
     @Caching(
         evict= {
-            @CacheEvict(value= "articleCache", key= "#articleId"),
+            @CacheEvict(value= "articleCache", key= "#id"),
             @CacheEvict(value= "allArticlesCache", allEntries= true)
         }
     )

@@ -13,27 +13,15 @@ public class Article implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
-    @Column(name="title")
     private String title;
-    @Column(name="category")
     private String category;
     public String getTitle() {
         return title;
     }
 
-
-    public long getId()
-    {
+    public long getId() {
         return id;
     }
-
-
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
-
     public void setTitle(String title) {
         this.title = title;
     }
