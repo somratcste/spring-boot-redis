@@ -1,7 +1,6 @@
 package info.somrat.redis.service;
 
 import info.somrat.redis.entity.Article;
-import info.somrat.redis.request.ArticleCreateRequest;
 import info.somrat.redis.respository.ArticleRepository;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -18,10 +17,10 @@ public class ArticleService implements ArticleServiceInterface {
     private ArticleRepository articleRepository;
 
     @Override
-    @Cacheable(value= "articleCache", key= "#id")
+    @Cacheable(value= "articleCache", key= "#articleId")
     public Article getArticleById(long articleId) {
         System.out.println("--- Inside getArticleById() ---");
-        return  articleRepository.findById(articleId).get();
+        return articleRepository.findById(articleId).get();
     }
     @Override
     @Cacheable(value= "allArticlesCache", unless= "#result.size() == 0")
@@ -34,10 +33,9 @@ public class ArticleService implements ArticleServiceInterface {
         put= { @CachePut(value= "articleCache", key= "#article.id") },
         evict= { @CacheEvict(value= "allArticlesCache", allEntries= true) }
     )
-    @Transactional
-    public int addArticle(Article article){
+    public Article addArticle(Article article){
         System.out.println("--- Inside addArticle() ---");
-        return (int) articleRepository.save(article).getId();
+        return articleRepository.save(article);
     }
     @Override
     @Caching(
@@ -55,8 +53,8 @@ public class ArticleService implements ArticleServiceInterface {
             @CacheEvict(value= "allArticlesCache", allEntries= true)
         }
     )
-    public void deleteArticle(long articleId) {
+    public void deleteArticle(long id) {
         System.out.println("--- Inside deleteArticle() ---");
-        articleRepository.delete(articleRepository.findById(articleId).get());
+        articleRepository.delete(articleRepository.findById(id).get());
     }
 }

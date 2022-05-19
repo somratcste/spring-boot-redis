@@ -38,10 +38,7 @@ public class ArticleController {
         return new ResponseEntity<List<Article>>(list, HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<String> addArticle(@RequestBody ArticleCreateRequest articleCreateRequest) {
-        Article article = new Article();
-        article.setTitle(articleCreateRequest.getTitle());
-        article.setCategory(articleCreateRequest.getCategory());
+    public ResponseEntity<String> addArticle(@RequestBody Article article) {
         articleService.addArticle(article);
         return new ResponseEntity<String>("Article Save Successfully!", HttpStatus.CREATED);
     }
@@ -51,8 +48,8 @@ public class ArticleController {
         return new ResponseEntity<Article>(article, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteArticle(@PathVariable("id") Long id) {
         articleService.deleteArticle(id);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<String>("Article Delete Successfully!", HttpStatus.NO_CONTENT);
     }
 }
